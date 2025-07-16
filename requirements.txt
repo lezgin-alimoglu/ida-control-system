@@ -1,0 +1,4 @@
+pymavlink
+pygame
+folium
+pyserial

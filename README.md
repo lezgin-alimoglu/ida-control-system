@@ -14,10 +14,6 @@ This project includes a ground control station and automatic/manual control syst
    ```bash
    sudo apt-get install joystick python3-tk
    ```
-4. If you are using a Raspberry Pi, for GPIO support:
-   ```bash
-   sudo apt-get install python3-rpi.gpio
-   ```
 
 ## Usage
 

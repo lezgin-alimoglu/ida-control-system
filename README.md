@@ -35,13 +35,11 @@ python main.py
 - folium
 - pyserial
 - tkinter (comes with most Python installations, but may require python3-tk on some Linux distros)
-- RPi.GPIO (only required for Raspberry Pi)
 
 ## Hardware Requirements
 - MAVLink-compatible vehicle (e.g., ArduPilot-based)
 - Connection via USB or UDP
 - Joystick (for manual control)
-- Raspberry Pi (optional, for GPIO)
 
 ## Important Notes
 - Adjust MAVLink connection settings in the `config.py` file as needed.

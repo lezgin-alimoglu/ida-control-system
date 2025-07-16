@@ -10,7 +10,7 @@ def set_mode(master, mode_str):
         master.set_mode(mode_id)
         print(f"[INFO] Flight mode {mode_str.upper()} set.")
     except Exception as e:
-        print(f"[ERROR] Mode değiştirilemedi: {e}")
+        print(f"[ERROR] Mode could not be changed: {e}")
 
 def send_goto_location(master, lat, lon, alt=5.0):
     """
@@ -68,7 +68,7 @@ def upload_mission(master, waypoints):
 
         print("[✓] Mission upload complete.")
     except Exception as e:
-        print(f"[ERROR] Görev yüklenemedi: {e}")
+        print(f"[ERROR] Mission could not be uploaded: {e}")
 
 def start_mission(master):
     """
@@ -89,4 +89,4 @@ def start_mission(master):
 
         print("[✓] Mission started in AUTO mode.")
     except Exception as e:
-        print(f"[ERROR] Görev başlatılamadı: {e}")
+        print(f"[ERROR] Mission could not be started: {e}")

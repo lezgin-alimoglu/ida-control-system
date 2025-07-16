@@ -12,13 +12,13 @@ def connect_mavlink():
         print("[INFO] Waiting for heartbeat...")
         master.wait_heartbeat()
         print(f"[✓] Connected: system={master.target_system}, component={master.target_component}")
-        # MAVLink version opsiyonel
+        # MAVLink version optional
         try:
             print(f"[INFO] MAVLink version: {master.get_mavlink_version()}")
         except AttributeError:
-            print("[INFO] MAVLink version bilgisi alınamadı.")
+            print("[INFO] MAVLink version information could not be retrieved.")
         return master
     except Exception as e:
-        print(f"[ERROR] MAVLink bağlantısı başarısız: {e}")
+        print(f"[ERROR] MAVLink connection failed: {e}")
         return None
 

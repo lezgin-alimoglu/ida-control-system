@@ -60,7 +60,7 @@ def launch_gui(master):
     label_pwm1.pack()
     label_pwm2.pack()
 
-    # Telemetri güncelleme fonksiyonunu başlat
+    # Start telemetry update function
     update_telemetry(master, root, label_lat, label_lon, label_heading, label_speed, label_pwm1, label_pwm2)
 
     root.mainloop()

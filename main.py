@@ -4,11 +4,11 @@ from gui.ground_station_ui import launch_gui
 
 def main():
     """
-    IDA Control System ana menü fonksiyonu. Kullanıcıdan mod seçimi alır ve ilgili kontrol modunu başlatır.
+    IDA Control System main menu function. Gets mode selection from user and starts the corresponding control mode.
     """
     master = connect_mavlink()
     if master is None:
-        print("[ERROR] MAVLink bağlantısı kurulamadı. Program sonlandırılıyor.")
+        print("[ERROR] MAVLink connection could not be established. Terminating program.")
         return
     while True:
         print("\n====== IDA CONTROL SYSTEM ======")
@@ -18,7 +18,7 @@ def main():
         try:
             choice = input("Select mode: ")
         except Exception as e:
-            print(f"[ERROR] Girdi alınamadı: {e}")
+            print(f"[ERROR] Could not get input: {e}")
             continue
         if choice == "1":
             run_manual(master)

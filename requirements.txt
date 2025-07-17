@@ -2,3 +2,4 @@ pymavlink
 pygame
 folium
 pyserial
+PyQt5

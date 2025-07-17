@@ -21,19 +21,53 @@ def init_joystick():
 def constrain(val, min_val, max_val):
     return max(min(val, max_val), min_val)
 
+def check_arm_status(master):
+    """
+    Returns (is_armed: bool, flight_mode: str) by reading the HEARTBEAT message.
+    """
+    hb = master.recv_match(type='HEARTBEAT', blocking=True)
+    base_mode = hb.base_mode
+    custom_mode = hb.custom_mode
+
+    is_armed = (base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED) != 0
+
+    # Mode mapping from ArduPilot's custom_mode integers
+    mode_str = master.mode_mapping().get(custom_mode, f"UNKNOWN({custom_mode})")
+
+    return is_armed, mode_str
+
+
+    
+
 def run_manual(master):
     js = init_joystick()
     if js is None:
         print("[INFO] Manual control could not be started.")
         return
 
+    
+    # 💡 Check arming status and flight mode
+    is_armed, mode = check_arm_status(master)
+    print(f"[INFO] Flight Mode: {mode}")
+    print(f"[INFO] ARM Status: {'ARMED' if is_armed else 'DISARMED'}")
+
+    if not is_armed:
+        print("[WARNING] Vehicle is not ARMED. Override commands may not affect motors.")
+
+    print("[INFO] Manual control started. To exit, press Ctrl+C")
+
+
     # 1. Send neutral signals
     print("[INFO] Sending initial neutral signals...")
     master.mav.rc_channels_override_send(
         config.TARGET_SYSTEM,
         config.TARGET_COMPONENT,
-        1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500
+        ch1_pwm,  # RC1 → MAIN OUT 1
+        1500,     # RC2 (unused)
+        ch2_pwm,  # RC3 → MAIN OUT 3
+        1500, 1500, 1500, 1500, 1500
     )
+
     time.sleep(2)
 
     # 2. Arm the vehicle

@@ -2,7 +2,7 @@ import time
 from pymavlink import mavutil
 import config
 from control.manual_control import run_manual  # Manual kontrol fonksiyonu
-from control.autonomous import (              # Otonom görev fonksiyonları
+from control.autonomous_navigation import (              # Otonom görev fonksiyonları
     set_mode,
     clear_mission,
     upload_mission,

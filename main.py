@@ -1,7 +1,7 @@
 import time
 from pymavlink import mavutil
 import config
-from manual_control import run_manual  # manual_control.py içinde fonksiyon
+from control.manual_control import run_manual  # manual_control.py içinde fonksiyon
 
 def connect_vehicle():
     print("[INFO] Connecting to vehicle...")

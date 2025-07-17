@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_dbd7c536293b8cf1a92c139c8c1334db {
+                #map_b8f84d0de584718fdfb721aff73902a4 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -55,15 +55,73 @@
 </head>
 <body>
     
+    <script>
+        var waypoints = [];
+        var markers = [];
+        var markerLayer = L.layerGroup().addTo(map);
+        var selectedLatLng = null;
+        var tempMarker = null;
+
+        function updateMarkers() {
+            markerLayer.clearLayers();
+            markers = [];
+            for (var i = 0; i < waypoints.length; i++) {
+                var wp = waypoints[i];
+                var marker = L.marker([wp[0], wp[1]], {draggable: false});
+                marker.bindTooltip((i+1).toString(), {permanent: true, direction: 'top'}).openTooltip();
+                markerLayer.addLayer(marker);
+                markers.push(marker);
+            }
+        }
+
+        map.on('click', function(e) {
+            selectedLatLng = e.latlng;
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+            }
+            tempMarker = L.marker([selectedLatLng.lat, selectedLatLng.lng], {icon: L.icon({iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png', iconSize: [32,32], iconAnchor: [16,32]})});
+            tempMarker.addTo(map);
+        });
+
+        function handleKey(event) {
+            if (!selectedLatLng) return;
+            if (event.key === 's') {
+                // Add as set point if not already present
+                var exists = false;
+                for (var i = 0; i < waypoints.length; i++) {
+                    if (Math.abs(waypoints[i][0] - selectedLatLng.lat) < 0.0001 && Math.abs(waypoints[i][1] - selectedLatLng.lng) < 0.0001) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    waypoints.push([selectedLatLng.lat, selectedLatLng.lng, 10.0]);
+                    updateMarkers();
+                }
+            } else if (event.key === 'd') {
+                // Delete set point at this location
+                for (var i = 0; i < waypoints.length; i++) {
+                    if (Math.abs(waypoints[i][0] - selectedLatLng.lat) < 0.0001 && Math.abs(waypoints[i][1] - selectedLatLng.lng) < 0.0001) {
+                        waypoints.splice(i, 1);
+                        updateMarkers();
+                        break;
+                    }
+                }
+            }
+        }
+        // Listen on both window and map container for robustness
+        window.addEventListener('keydown', handleKey);
+        map.getContainer().addEventListener('keydown', handleKey);
+        </script>
     
-            <div class="folium-map" id="map_dbd7c536293b8cf1a92c139c8c1334db" ></div>
+            <div class="folium-map" id="map_b8f84d0de584718fdfb721aff73902a4" ></div>
         
 </body>
 <script>
     
     
-            var map_dbd7c536293b8cf1a92c139c8c1334db = L.map(
-                "map_dbd7c536293b8cf1a92c139c8c1334db",
+            var map_b8f84d0de584718fdfb721aff73902a4 = L.map(
+                "map_b8f84d0de584718fdfb721aff73902a4",
                 {
                     center: [40.0, 29.0],
                     crs: L.CRS.EPSG3857,
@@ -80,7 +138,7 @@
 
         
     
-            var tile_layer_aee572da7435de0c5f7a3ac9a46165ce = L.tileLayer(
+            var tile_layer_a9d6c85aa0d20674099dbc73d210d1b2 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -97,10 +155,10 @@
             );
         
     
-            tile_layer_aee572da7435de0c5f7a3ac9a46165ce.addTo(map_dbd7c536293b8cf1a92c139c8c1334db);
+            tile_layer_a9d6c85aa0d20674099dbc73d210d1b2.addTo(map_b8f84d0de584718fdfb721aff73902a4);
         
     
-            var mouse_position_553c767304f0440166a7890180931e20 = new L.Control.MousePosition(
+            var mouse_position_00769986a21f97aa67f9a612245fc7da = new L.Control.MousePosition(
                 {
   "position": "bottomright",
   "separator": " : ",
@@ -110,11 +168,11 @@
   "prefix": "",
 }
             );
-            mouse_position_553c767304f0440166a7890180931e20.options["latFormatter"] =
+            mouse_position_00769986a21f97aa67f9a612245fc7da.options["latFormatter"] =
                 undefined;
-            mouse_position_553c767304f0440166a7890180931e20.options["lngFormatter"] =
+            mouse_position_00769986a21f97aa67f9a612245fc7da.options["lngFormatter"] =
                 undefined;
-            map_dbd7c536293b8cf1a92c139c8c1334db.addControl(mouse_position_553c767304f0440166a7890180931e20);
+            map_b8f84d0de584718fdfb721aff73902a4.addControl(mouse_position_00769986a21f97aa67f9a612245fc7da);
         
 </script>
 </html>

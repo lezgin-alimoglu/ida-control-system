@@ -5,18 +5,20 @@ import os
 
 def create_map(center_lat=40.0, center_lon=29.0, zoom=17, save_file="waypoints.txt"):
     """
-    Creates an interactive map where right-click adds a numbered marker as a waypoint,
-    and right-clicking again on a marker removes it. Waypoints are saved to file.
+    Interactive map: click to select a point, press 's' to add as set point, 'd' to delete set point at that location.
+    Waypoints are saved to file.
     """
     try:
         m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom)
         MousePosition().add_to(m)
 
-        # Custom JS for right-click add/remove numbered markers
+        # Custom JS for keyboard-controlled set point add/delete
         custom_js = '''
         var waypoints = [];
         var markers = [];
         var markerLayer = L.layerGroup().addTo(map);
+        var selectedLatLng = null;
+        var tempMarker = null;
 
         function updateMarkers() {
             markerLayer.clearLayers();
@@ -25,33 +27,44 @@ def create_map(center_lat=40.0, center_lon=29.0, zoom=17, save_file="waypoints.t
                 var wp = waypoints[i];
                 var marker = L.marker([wp[0], wp[1]], {draggable: false});
                 marker.bindTooltip((i+1).toString(), {permanent: true, direction: 'top'}).openTooltip();
-                marker.on('contextmenu', (function(idx) {
-                    return function(e) {
-                        waypoints.splice(idx, 1);
-                        updateMarkers();
-                    }
-                })(i));
                 markerLayer.addLayer(marker);
                 markers.push(marker);
             }
         }
 
-        map.on('contextmenu', function(e) {
-            // Check if clicked on an existing marker (within 0.0001 deg)
-            var found = false;
-            for (var i = 0; i < waypoints.length; i++) {
-                var wp = waypoints[i];
-                if (Math.abs(wp[0] - e.latlng.lat) < 0.0001 && Math.abs(wp[1] - e.latlng.lng) < 0.0001) {
-                    // Remove this marker
-                    waypoints.splice(i, 1);
-                    updateMarkers();
-                    found = true;
-                    break;
-                }
+        map.on('click', function(e) {
+            selectedLatLng = e.latlng;
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
             }
-            if (!found) {
-                waypoints.push([e.latlng.lat, e.latlng.lng, 10.0]);
-                updateMarkers();
+            tempMarker = L.marker([selectedLatLng.lat, selectedLatLng.lng], {icon: L.icon({iconUrl: 'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png', iconSize: [32,32], iconAnchor: [16,32]})});
+            tempMarker.addTo(map);
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (!selectedLatLng) return;
+            if (event.key === 's') {
+                // Add as set point if not already present
+                var exists = false;
+                for (var i = 0; i < waypoints.length; i++) {
+                    if (Math.abs(waypoints[i][0] - selectedLatLng.lat) < 0.0001 && Math.abs(waypoints[i][1] - selectedLatLng.lng) < 0.0001) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    waypoints.push([selectedLatLng.lat, selectedLatLng.lng, 10.0]);
+                    updateMarkers();
+                }
+            } else if (event.key === 'd') {
+                // Delete set point at this location
+                for (var i = 0; i < waypoints.length; i++) {
+                    if (Math.abs(waypoints[i][0] - selectedLatLng.lat) < 0.0001 && Math.abs(waypoints[i][1] - selectedLatLng.lng) < 0.0001) {
+                        waypoints.splice(i, 1);
+                        updateMarkers();
+                        break;
+                    }
+                }
             }
         });
 
@@ -70,7 +83,7 @@ def create_map(center_lat=40.0, center_lon=29.0, zoom=17, save_file="waypoints.t
         except Exception as e:
             print(f"[ERROR] Map could not be opened in browser: {e}")
 
-        print("[→] Sağ tık ile set point ekleyin. Aynı noktaya tekrar sağ tıklarsanız o set point silinir.\nTüm noktaları seçtikten sonra harita sekmesini kapatın.")
+        print("[→] Haritada bir noktaya sol tıklayın.\n's' tuşu ile set point ekleyin, 'd' tuşu ile o noktadaki set point'i silin.\nTüm noktaları seçtikten sonra harita sekmesini kapatın.")
         input("Set point seçimi bitince Enter'a basın...")
 
         # Kullanıcıdan waypoint'leri al

@@ -3,3 +3,5 @@ pygame
 folium
 pyserial
 kivy
+kivy-garden
+kivy_garden.mapview

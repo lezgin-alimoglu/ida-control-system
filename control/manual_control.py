@@ -42,7 +42,17 @@ def run_manual(master):
     print(f"[INFO] Flight Mode: {mode}")
     print(f"[INFO] ARM Status: {'ARMED' if is_armed else 'DISARMED'}")
 
-    # Arming required before MANUAL_CONTROL
+    print("[INFO] Sending initial neutral PWM signals...")
+    master.mav.rc_channels_override_send(
+        config.TARGET_SYSTEM,
+        config.TARGET_COMPONENT,
+        1500,  # RC1 → MAIN OUT 1
+        1500,  # RC2 (unused)
+        1500,  # RC3 → MAIN OUT 3
+        1500, 1500, 1500, 1500, 1500
+    )
+    time.sleep(1)
+
     if not is_armed:
         print("[INFO] Arming vehicle...")
         master.mav.command_long_send(
@@ -55,31 +65,25 @@ def run_manual(master):
         master.motors_armed_wait()
         print("[✓] Vehicle armed.")
 
-    print("[INFO] Manual control started. Press Ctrl+C to stop.")
+    print("[INFO] Manual PWM control started. Press Ctrl+C to stop.")
     try:
         while True:
             pygame.event.pump()
 
-            thrust_joystick = -js.get_axis(1)   # Forward/back (joystick Y ekseni)
-            steer_joystick = js.get_axis(0)    # Yaw (joystick X ekseni)
+            thrust = -js.get_axis(1)  # Joystick Y ekseni (ileri/geri)
+            steer = js.get_axis(0)   # Joystick X ekseni (sağ/sol)
 
-            # MAVLink MANUAL_CONTROL x, y, r değerleri için -1000 ile 1000 arası
-            x = int(constrain(thrust_joystick, -1, 1) * 1000)   # İleri/Geri kontrolü
-            y = 0                                      # Yanal hareket (kullanılmıyor)
+            # PWM hesaplamaları (1000–2000 µs aralığı, merkez 1500)
+            ch1_pwm = int(1500 + constrain(thrust + steer, -1, 1) * 400)
+            ch3_pwm = int(1500 + constrain(thrust - steer, -1, 1) * 400)
 
-            # Gaz (Throttle) kontrolü: Joystick'in -1 ile 1 aralığını MAVLink'in 0 (minimum) ile 1000 (maksimum) aralığına ölçekle
-            # -1 -> 0 (min gaz)
-            #  0 -> 500 (orta gaz)
-            #  1 -> 1000 (max gaz)
-            z = int(constrain(thrust_joystick, -1, 1) * 500 + 500)
-
-            # Yaw kontrolü: -1000 ile 1000 arası
-            r = int(constrain(steer_joystick, -1, 1) * 1000)
-            buttons = 0
-
-            master.mav.manual_control_send(
+            master.mav.rc_channels_override_send(
                 config.TARGET_SYSTEM,
-                x, y, z, r, buttons
+                config.TARGET_COMPONENT,
+                ch1_pwm,
+                1500,     # RC2
+                ch3_pwm,
+                1500, 1500, 1500, 1500, 1500
             )
 
             time.sleep(0.05)

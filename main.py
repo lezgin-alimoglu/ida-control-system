@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 import time
 from pymavlink import mavutil
 import config
-from control.manual_control import run_manual  # manual_control.py içinde fonksiyon
+from control.manual_control import run_manual  
 from control.auto_navigation import upload_mission, start_mission
 from gui.waypoint_selector import create_map
 

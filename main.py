@@ -1,13 +1,9 @@
 import time
 from pymavlink import mavutil
 import config
-from control.manual_control import run_manual  # Manual kontrol fonksiyonu
-from control.auto_navigation import (              # Otonom görev fonksiyonları
-    set_mode,
-    clear_mission,
-    upload_mission,
-    start_mission
-)
+from control.manual_control import run_manual  # manual_control.py içinde fonksiyon
+from control.auto_navigation import upload_mission, start_mission
+from gui.waypoint_selector import create_map
 
 def connect_vehicle():
     print("[INFO] Connecting to vehicle...")
@@ -19,29 +15,24 @@ def connect_vehicle():
     print(f"[✓] Connected to system {master.target_system}, component {master.target_component}")
     return master
 
-def run_autonomous(master):
-    print("[INFO] Switching to GUIDED mode...")
-    set_mode(master, "GUIDED")
-
-    # 📍 Örnek waypoint listesi — bunları gerçek koordinatlarla değiştir
-    waypoints = [
-        (39.909736, 32.807465, 5.0),
-        (39.909850, 32.807600, 5.0),
-        (39.909950, 32.807465, 5.0)
-    ]
-
-    print("[INFO] Uploading mission...")
-    clear_mission(master)
-    upload_mission(master, waypoints)
-
-    print("[INFO] Starting mission...")
-    start_mission(master)
+def read_waypoints_from_file(filename="waypoints.txt"):
+    waypoints = []
+    try:
+        with open(filename, "r") as f:
+            for line in f:
+                parts = [float(x) for x in line.strip().split(",")]
+                if len(parts) == 3:
+                    waypoints.append(tuple(parts))
+        print(f"[INFO] {len(waypoints)} waypoints loaded from {filename}")
+    except Exception as e:
+        print(f"[ERROR] Could not read waypoints: {e}")
+    return waypoints
 
 def main():
     while True:
         print("\n=== IDA CONTROL SYSTEM ===")
         print("1 - Manual Control (Joystick)")
-        print("2 - Autonomous Mission")
+        print("2 - Select Waypoints on Map and Start Mission")
         print("0 - Exit")
         choice = input("Select an option: ").strip()
 
@@ -49,8 +40,14 @@ def main():
             master = connect_vehicle()
             run_manual(master)
         elif choice == "2":
+            create_map()  # Kullanıcıdan waypoint dosyasını oluşturmasını iste
+            waypoints = read_waypoints_from_file()
+            if not waypoints:
+                print("[!] No waypoints found. Please select waypoints on the map first.")
+                continue
             master = connect_vehicle()
-            run_autonomous(master)
+            upload_mission(master, waypoints)
+            start_mission(master)
         elif choice == "0":
             print("Exiting...")
             break

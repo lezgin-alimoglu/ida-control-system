@@ -41,3 +41,33 @@ python main.py
 - Adjust MAVLink connection settings in the `config.py` file as needed.
 - Some parts of the code are hardware-dependent and may not work on all platforms.
 - For bugs or suggestions, please open an issue.
+
+# IDA Control System - Görev Başlatma Akışı
+
+## Harita Üzerinden Waypoint Seçip Görev Başlatma
+
+1. **Programı başlatın:**
+   ```bash
+   python3 main.py
+   ```
+
+2. **Menüden 'Select Waypoints on Map and Start Mission' seçeneğini (2) seçin.**
+
+3. **Açılan haritada istediğiniz noktalara tıklayın.**
+   - Her tıklamada koordinatlar ekranda görünecek.
+   - Tüm noktaları seçtikten sonra harita sekmesini kapatın.
+
+4. **Terminalde 'Press Enter here...' mesajı geldiğinde Enter'a basın.**
+
+5. **Terminalde, haritada tıkladığınız noktaların koordinatlarını (lat, lon, alt) sırayla girin.**
+   - Örnek: `40.123456,29.123456,10.0`
+   - Sadece lat,lon girerseniz yükseklik otomatik 10.0 alınır.
+   - Tüm noktaları girdikten sonra `done` yazıp Enter'a basın.
+
+6. **Program, waypoint'leri kaydedecek ve Ardupilot'a yükleyecek. Görev otomatik başlatılır.**
+
+---
+
+- Waypoint dosyası: `waypoints.txt`
+- Görev yükleme ve başlatma işlemleri otomatik yapılır.
+- Hatalar veya eksik girişlerde terminalde uyarı alırsınız.

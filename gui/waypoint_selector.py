@@ -12,7 +12,7 @@ def create_map(center_lat=40.0, center_lon=29.0, zoom=17, save_file="waypoints.t
         m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom)
         MousePosition().add_to(m)
 
-        # Custom JS for keyboard-controlled set point add/delete
+        # Custom JS for robust keyboard event handling
         custom_js = '''
         var waypoints = [];
         var markers = [];
@@ -41,7 +41,7 @@ def create_map(center_lat=40.0, center_lon=29.0, zoom=17, save_file="waypoints.t
             tempMarker.addTo(map);
         });
 
-        document.addEventListener('keydown', function(event) {
+        function handleKey(event) {
             if (!selectedLatLng) return;
             if (event.key === 's') {
                 // Add as set point if not already present
@@ -66,10 +66,10 @@ def create_map(center_lat=40.0, center_lon=29.0, zoom=17, save_file="waypoints.t
                     }
                 }
             }
-        });
-
-        // Expose waypoints for export
-        window.getWaypoints = function() { return waypoints; };
+        }
+        // Listen on both window and map container for robustness
+        window.addEventListener('keydown', handleKey);
+        map.getContainer().addEventListener('keydown', handleKey);
         '''
         m.get_root().html.add_child(folium.Element(f'<script>{custom_js}</script>'))
 
@@ -83,7 +83,7 @@ def create_map(center_lat=40.0, center_lon=29.0, zoom=17, save_file="waypoints.t
         except Exception as e:
             print(f"[ERROR] Map could not be opened in browser: {e}")
 
-        print("[→] Haritada bir noktaya sol tıklayın.\n's' tuşu ile set point ekleyin, 'd' tuşu ile o noktadaki set point'i silin.\nTüm noktaları seçtikten sonra harita sekmesini kapatın.")
+        print("[→] Harita sekmesine tıklayın ve orada 's' veya 'd' tuşlarına basın!\nBir noktaya sol tıklayın, 's' ile set point ekleyin, 'd' ile silin.\nTüm noktaları seçtikten sonra harita sekmesini kapatın.")
         input("Set point seçimi bitince Enter'a basın...")
 
         # Kullanıcıdan waypoint'leri al

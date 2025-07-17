@@ -30,14 +30,9 @@ def check_arm_status(master):
     custom_mode = hb.custom_mode
 
     is_armed = (base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED) != 0
-
-    # Mode mapping from ArduPilot's custom_mode integers
     mode_str = master.mode_mapping().get(custom_mode, f"UNKNOWN({custom_mode})")
 
     return is_armed, mode_str
-
-
-    
 
 def run_manual(master):
     js = init_joystick()
@@ -45,19 +40,16 @@ def run_manual(master):
         print("[INFO] Manual control could not be started.")
         return
 
-    
     # 💡 Check arming status and flight mode
     is_armed, mode = check_arm_status(master)
     print(f"[INFO] Flight Mode: {mode}")
     print(f"[INFO] ARM Status: {'ARMED' if is_armed else 'DISARMED'}")
 
-    if not is_armed:
-        print("[WARNING] Vehicle is not ARMED. Override commands may not affect motors.")
+    # Initial neutral PWM values
+    ch1_pwm = 1500
+    ch2_pwm = 1500
 
-    print("[INFO] Manual control started. To exit, press Ctrl+C")
-
-
-    # 1. Send neutral signals
+    # Send neutral signals before arming
     print("[INFO] Sending initial neutral signals...")
     master.mav.rc_channels_override_send(
         config.TARGET_SYSTEM,
@@ -67,10 +59,9 @@ def run_manual(master):
         ch2_pwm,  # RC3 → MAIN OUT 3
         1500, 1500, 1500, 1500, 1500
     )
-
     time.sleep(2)
 
-    # 2. Arm the vehicle
+    # Arm the vehicle
     print("[INFO] Arming vehicle...")
     master.mav.command_long_send(
         master.target_system,
@@ -83,7 +74,6 @@ def run_manual(master):
     print("[✓] Vehicle armed.")
 
     print("[INFO] Manual control started. Press Ctrl+C to stop.")
-
     try:
         while True:
             pygame.event.pump()
@@ -111,4 +101,3 @@ def run_manual(master):
             0, 0, 0, 0, 0, 0, 0
         )
         master.motors_disarmed_wait()
-        print("[✓] Vehicle disarmed.")

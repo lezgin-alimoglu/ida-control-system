@@ -1,5 +1,6 @@
 from pymavlink import mavutil
 import config
+import time
 
 def set_mode(master, mode_str):
     """

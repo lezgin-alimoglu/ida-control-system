@@ -1,5 +1,6 @@
 from pymavlink import mavutil 
 import config
+
 def connect_mavlink():
     try:
         print(f"[INFO] Starting connection: {config.MAVLINK_CONNECTION_STRING} @ {config.MAVLINK_BAUDRATE} baud")

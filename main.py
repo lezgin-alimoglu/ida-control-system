@@ -6,8 +6,8 @@ from control.manual_control import run_manual  # manual_control.py içinde fonks
 def connect_vehicle():
     print("[INFO] Connecting to vehicle...")
     master = mavutil.mavlink_connection(
-        config.CONNECTION_STRING,
-        baud=config.BAUD_RATE
+        config.MAVLINK_CONNECTION_STRING,
+        baud=config.MAVLINK_BAUD_RATE
     )
     master.wait_heartbeat()
     print(f"[✓] Connected to system {master.target_system}, component {master.target_component}")

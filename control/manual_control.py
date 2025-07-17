@@ -31,7 +31,7 @@ def check_arm_status(master):
     return is_armed, mode_str
 
 def run_manual(master):
-    import __main__  # Needed for returning to main.py
+    import __main__  # For returning to main.py
 
     js = init_joystick()
     if js is None:
@@ -42,46 +42,38 @@ def run_manual(master):
     print(f"[INFO] Flight Mode: {mode}")
     print(f"[INFO] ARM Status: {'ARMED' if is_armed else 'DISARMED'}")
 
-    ch1_pwm = 1500
-    ch2_pwm = 1500
+    # Arming required before MANUAL_CONTROL
+    if not is_armed:
+        print("[INFO] Arming vehicle...")
+        master.mav.command_long_send(
+            master.target_system,
+            master.target_component,
+            mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
+            0,
+            1, 0, 0, 0, 0, 0, 0
+        )
+        master.motors_armed_wait()
+        print("[✓] Vehicle armed.")
 
-    print("[INFO] Sending initial neutral signals...")
-    master.mav.rc_channels_override_send(
-        config.TARGET_SYSTEM,
-        config.TARGET_COMPONENT,
-        ch1_pwm,
-        1500,
-        ch2_pwm,
-        1500, 1500, 1500, 1500, 1500
-    )
-    time.sleep(2)
-
-    print("[INFO] Arming vehicle...")
-    master.mav.command_long_send(
-        master.target_system,
-        master.target_component,
-        mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
-        0,
-        1, 0, 0, 0, 0, 0, 0
-    )
-    master.motors_armed_wait()
-    print("[✓] Vehicle armed.")
-
+    print("[INFO] Manual control started. Press Ctrl+C to stop.")
     try:
         while True:
             pygame.event.pump()
-            thrust = -js.get_axis(1)
-            steer = js.get_axis(0)
 
-            ch1_pwm = int(1500 + constrain((thrust + steer), -1, 1) * 400)
-            ch2_pwm = int(1500 + constrain((thrust - steer), -1, 1) * 400)
+            thrust = -js.get_axis(1)   # Forward/back
+            steer = js.get_axis(0)    # Yaw
 
-            master.mav.rc_channels_override_send(
+            x = int(constrain(thrust, -1, 1) * 1000)   # Forward/Back
+            y = 0                                      # Lateral (not used)
+            z = 500                                    # Throttle fixed at 50%
+            r = int(constrain(steer, -1, 1) * 1000)    # Yaw
+            buttons = 0
+
+            master.mav.manual_control_send(
                 config.TARGET_SYSTEM,
-                config.TARGET_COMPONENT,
-                ch1_pwm, ch2_pwm,
-                1500, 1500, 1500, 1500, 1500, 1500
+                x, y, z, r, buttons
             )
+
             time.sleep(0.05)
 
     except KeyboardInterrupt:
@@ -98,6 +90,5 @@ def run_manual(master):
         master.motors_disarmed_wait()
         print("[✓] Vehicle disarmed.")
 
-        # Return to main menu
         print("[INFO] Returning to main menu...")
         os.execv(__main__.__file__, ['python3'] + [__main__.__file__])

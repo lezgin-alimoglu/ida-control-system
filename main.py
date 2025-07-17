@@ -1,34 +1,33 @@
-from comms.mavlink_interface import connect_mavlink
-from control.manual_control import run_manual
-from gui.ground_station_ui import launch_gui
+import time
+from pymavlink import mavutil
+import config
+from manual_control import run_manual  # manual_control.py içinde fonksiyon
+
+def connect_vehicle():
+    print("[INFO] Connecting to vehicle...")
+    master = mavutil.mavlink_connection(
+        config.CONNECTION_STRING,
+        baud=config.BAUD_RATE
+    )
+    master.wait_heartbeat()
+    print(f"[✓] Connected to system {master.target_system}, component {master.target_component}")
+    return master
 
 def main():
-    """
-    IDA Control System main menu function. Gets mode selection from user and starts the corresponding control mode.
-    """
-    master = connect_mavlink()
-    if master is None:
-        print("[ERROR] MAVLink connection could not be established. Terminating program.")
-        return
     while True:
-        print("\n====== IDA CONTROL SYSTEM ======")
+        print("\n=== IDA CONTROL SYSTEM ===")
         print("1 - Manual Control (Joystick)")
-        print("2 - Mission Planner (GUI)")
         print("0 - Exit")
-        try:
-            choice = input("Select mode: ")
-        except Exception as e:
-            print(f"[ERROR] Could not get input: {e}")
-            continue
+        choice = input("Select an option: ").strip()
+
         if choice == "1":
+            master = connect_vehicle()
             run_manual(master)
-        elif choice == "2":
-            launch_gui(master)
         elif choice == "0":
             print("Exiting...")
             break
         else:
-            print("Invalid choice. Try again.")
+            print("Invalid choice!")
 
 if __name__ == "__main__":
     main()

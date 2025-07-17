@@ -7,7 +7,7 @@ def connect_vehicle():
     print("[INFO] Connecting to vehicle...")
     master = mavutil.mavlink_connection(
         config.MAVLINK_CONNECTION_STRING,
-        baud=config.MAVLINK_BAUD_RATE
+        baud=config.MAVLINK_BAUDRATE
     )
     master.wait_heartbeat()
     print(f"[✓] Connected to system {master.target_system}, component {master.target_component}")

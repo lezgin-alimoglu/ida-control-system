@@ -2,4 +2,4 @@ pymavlink
 pygame
 folium
 pyserial
-PyQt5
+kivy

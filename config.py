@@ -1,10 +1,19 @@
+# Connection to Jetson
+
+JETSON_IP = "192.168.0.79"    # "ip a"  OR  " hostname -I"
+JETSON_PORT = 6006
+
+LOCAL_RECEIVE_PORT = 14451
+
+GPS_PORT = 5005
+
 # config.py
+KP = 3.5
+KI = 0.01
+KD = 0.2
+PWM_MIN = -150
+PWM_MAX = 150
 
-# MAVLink connection settings
-MAVLINK_CONNECTION_STRING = "/dev/ttyACM0"  # or "udp:14550"
-MAVLINK_BAUDRATE = 115200
 
-# ArduPilot system settings
-TARGET_SYSTEM = 1
-TARGET_COMPONENT = 1
+
 

@@ -5,6 +5,8 @@ import json
 import threading
 import time
 import subprocess
+from math import sin, cos, radians
+
 
 # === COORDINATE BOUNDS OF THE MAP IMAGE ===
 # Adjust these to match your map.png
@@ -46,8 +48,8 @@ class USV_GUI:
         self.canvas = tk.Canvas(root, width=MAP_WIDTH, height=MAP_HEIGHT)
         self.canvas.pack()
         self.canvas.create_image(0, 0, image=self.map_photo, anchor=tk.NW)
-
-        self.bot_marker = self.canvas.create_oval(-5, -5, -5, -5, fill="red")  # initially hidden
+        
+        self.bot_shape = self.canvas.create_polygon(0, 0, 0, 0, 0, 0, fill="red")
 
         self.canvas.bind("<Button-1>", self.on_click)
 
@@ -85,9 +87,22 @@ class USV_GUI:
         while self.running:
             pos = read_position()
             if pos:
-                x, y = coord_to_pixel(pos[0], pos[1])
-                self.canvas.coords(self.bot_marker, x-5, y-5, x+5, y+5)
+                lat, lon = pos[:2]
+                yaw = pos[2]  
+
+                x, y = coord_to_pixel(lat, lon)
+                r = 10  
+                angle_rad = radians(-yaw)  
+
+                # Üçgenin üç köşesini hesapla
+                p1 = (x + r * cos(angle_rad), y + r * sin(angle_rad))  # ileri yön
+                p2 = (x + r * cos(angle_rad + 2.5), y + r * sin(angle_rad + 2.5))  # sol arka
+                p3 = (x + r * cos(angle_rad - 2.5), y + r * sin(angle_rad - 2.5))  # sağ arka
+
+                self.canvas.coords(self.bot_shape, *p1, *p2, *p3)
+
             time.sleep(1)
+
 
     def stop(self):
         self.running = False

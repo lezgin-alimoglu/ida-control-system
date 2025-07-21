@@ -11,6 +11,7 @@ import subprocess
 MIN_LAT, MAX_LAT = 39.81927, 39.83423
 MIN_LON, MAX_LON = 32.81857, 32.85107 
 
+
 MAP_WIDTH, MAP_HEIGHT = 800, 600  # size of map.png
 
 # === HELPER FUNCTIONS ===

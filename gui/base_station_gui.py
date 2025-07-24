@@ -1,3 +1,6 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -6,6 +9,8 @@ import threading
 import time
 import subprocess
 from math import sin, cos, radians
+from comm.jetson_comm import send_command_pwm
+
 
 
 # === COORDINATE BOUNDS OF THE MAP IMAGE ===
@@ -26,9 +31,10 @@ def read_position():
     try:
         with open("position.json", "r") as f:
             pos = json.load(f)
-            return pos["lat"], pos["lon"]
+            return pos["lat"], pos["lon"], pos["yaw"]
     except:
         return None
+
 
 def coord_to_pixel(lat, lon):
     x = int((lon - MIN_LON) / (MAX_LON - MIN_LON) * MAP_WIDTH)

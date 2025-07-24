@@ -14,7 +14,7 @@ def stop_motors():
     # Jetson'a UDP mesajı gönder: m1_1500, m3_1500
     import comm.jetson_comm as jc
     jc.send_command_pwm(1, 1500)
-    jc.send_command_pwm(3, 1500)
+    jc.send_command_pwm(2, 1500)
     print("[MAIN] Tüm motorlar nötr PWM'de.")
 
 def run_gui():

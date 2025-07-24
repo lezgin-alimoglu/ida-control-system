@@ -1,3 +1,6 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import sys
 import os
 import time
@@ -64,7 +67,7 @@ def load_mission():
     return mission
 
 # === Check if Target Reached Based on Proximity ===
-def reached(lat1, lon1, lat2, lon2, threshold=0.0001):
+def reached(lat1, lon1, lat2, lon2, threshold=0.00001):
     return abs(lat1 - lat2) < threshold and abs(lon1 - lon2) < threshold
 
 # === Clamp PWM Values Safely ===
@@ -80,7 +83,7 @@ def run_auto_mode():
         return
 
     yaw_pid = PID(KP, KI, KD, out_min=-400, out_max=400)
-    base_pwm = 1500
+    base_pwm = 1650
     prev_time = time.time()
 
     for idx, (target_lat, target_lon) in enumerate(mission):
@@ -106,12 +109,13 @@ def run_auto_mode():
             target_bearing = calculate_bearing(lat, lon, target_lat, target_lon)
             yaw_pid.setpoint = target_bearing
             correction = yaw_pid.update(yaw, dt)
+            
 
-            pwm_left = clamp_pwm(int(base_pwm - correction))
-            pwm_right = clamp_pwm(int(base_pwm + correction))
+            pwm_left = clamp_pwm(int(base_pwm  - correction))
+            pwm_right = clamp_pwm(int(base_pwm  + correction))
 
-            send_command_pwm(1, pwm_left)
-            send_command_pwm(2, pwm_right)
+            #send_command_pwm(1, pwm_left)
+            #send_command_pwm(2, pwm_right)
 
             print(f"[AUTO] Target: {target_bearing:.1f}° | Yaw: {yaw:.1f}° | Correction: {correction:.1f} → PWM L:{pwm_left}, R:{pwm_right}")
             time.sleep(0.25)
